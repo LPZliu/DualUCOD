@@ -1,4 +1,4 @@
-# FEDER
+# DualUCOD
 **Unsupervised Camouflaged Object Detection with Dual-Eigenvector Spectral Pseudo-Labeling and Contrastive Refinement**,  ICML 2026
 
 #### Authors
@@ -19,7 +19,7 @@ Pingzhu Liu, Chunming He, Zunnan Xu, Chao Hao, Bo Zhao, Xingyu Shao, Jun Zhou, Z
 
 > Note that Model is only tested on Ubuntu OS with the following environments.
 
-- Creating a virtual environment in terminal: `conda create -n DualUCOD python=3.8`.
+- Creating a virtual environment in terminal: `conda create -n DualUCOD python=3.9`.
 - Installing necessary packages: `pip install -r requirements.txt`
 
 ### 2. Downloading Training and Testing Datasets
