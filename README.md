@@ -27,24 +27,36 @@ Pingzhu Liu, Chunming He, Zunnan Xu, Chao Hao, Bo Zhao, Xingyu Shao, Jun Zhou, Z
 - Download the [training set](https://anu365-my.sharepoint.com/:u:/g/personal/u7248002_anu_edu_au/EQ75AD2A5ClIgqNv6yvstSwBQ1jJNC6DNbk8HISuxPV9QA?e=UhHKSD) (COD10K-train) used for training 
 - Download the [testing sets](https://anu365-my.sharepoint.com/:u:/g/personal/u7248002_anu_edu_au/EVI0Bjs7k_VIvz4HmSVV9egBo48vjwX7pvx7deXBtooBYg?e=FjGqZZ) (COD10K-test + CAMO-test + CHAMELEON + NC4K ) used for testing
 
-### 3. Training Configuration
+### 3. Stage I: Pseudo-Label Generation
+
+The model is trained in two stages. First, generate pseudo labels from the unlabeled training images using DESPL (Eqs. (1)-(10) and Appendix A.3 of the paper):
 
 ```bash
-python Train.py  --epoch 160  --lr 1e-4  --batchsize 36  --trainsize 36  --train_root YOUR_TRAININGSETPATH  --val_root  YOUR_VALIDATIONSETPATH  --save_path YOUR_CHECKPOINTPATH
+python GeneratePseudoLabels.py --data_path YOUR_TRAININGSETPATH/Imgs --save_path YOUR_TRAININGSETPATH/PseudoMask_Enhanced --device cuda --imgsz 476
 ```
 
-### 4. Testing Configuration
+The generator uses the paper's DINOv2 ViT-L/14 settings and eight-view fusion without ground-truth masks. It saves original-resolution soft pseudo labels matching Eq. (10). Pretrained weights are downloaded on first use; `--weights PATH` loads a local backbone state dict. See `python GeneratePseudoLabels.py --help` for options.
+
+### 4. Stage II: Model Training
+
+After Stage I, train the model with the generated masks in `YOUR_TRAININGSETPATH/PseudoMask_Enhanced/`:
+
+```bash
+python Train.py --epoch 50 --lr 3e-4 --batchsize 16 --trainsize 476 --train_root YOUR_TRAININGSETPATH/ --val_root YOUR_VALIDATIONSETPATH/ --save_path YOUR_CHECKPOINTPATH/
+```
+
+### 5. Testing Configuration
 
 Please change the file path in the corresponding code.
 ```bash
 python Test.py  --testsize YOUR_IMAGESIZE  --pth_path YOUR_CHECKPOINTPATH  --test_dataset_path  YOUR_TESTINGSETPATH
 ```
 
-### 5. Evaluation
+### 6. Evaluation
 
 - Matlab code: One-key evaluation is written in [MATLAB code](https://github.com/DengPingFan/CODToolbox), please follow this the instructions in `main.m` and just run it to generate the evaluation results.
 
-### 6. Results download
+### 7. Results download
 
 The prediction results of our DualUCOD are stored on [Baidu Drive](https://pan.baidu.com/s/1rYmeua5jLtIq1WIhW7vrYw?pwd=9h9v) please check.
 
