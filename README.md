@@ -35,7 +35,9 @@ The model is trained in two stages. First, generate pseudo labels from the unlab
 python GeneratePseudoLabels.py --data_path YOUR_TRAININGSETPATH/Imgs --save_path YOUR_TRAININGSETPATH/PseudoMask_Enhanced --device cuda --imgsz 476
 ```
 
-The generator uses the paper's DINOv2 ViT-L/14 settings and eight-view fusion without ground-truth masks. It saves original-resolution soft pseudo labels matching Eq. (10). Pretrained weights are downloaded on first use; `--weights PATH` loads a local backbone state dict. See `python GeneratePseudoLabels.py --help` for options.
+The complete DESPL strategy is implemented directly in `GeneratePseudoLabels.py`, following the supplied local script's DINOv2, affinity, eigendecomposition, and augmentation structure. The ICML defaults are a 34 x 34 patch grid, color weight and bandwidth of 0.1, 50 entropy bins, an uncertainty-band fraction of 0.1, and eight augmented views. It uses entropy selection, Otsu thresholding, auxiliary-eigenvector correction in the uncertain region, and the inverse-aligned mean of Eq. (10), without reading ground-truth masks.
+
+It saves original-resolution soft pseudo labels as grayscale PNGs. `--save-npy` also saves the unquantized soft mask; `--binary-mask` applies an additional hard threshold to the PNG. Existing PNGs are skipped unless `--overwrite` is given. Pretrained weights are downloaded on first use; `--weights PATH` loads a local backbone state dict. See `python GeneratePseudoLabels.py --help` for options.
 
 ### 4. Stage II: Model Training
 
