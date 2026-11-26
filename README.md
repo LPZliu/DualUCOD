@@ -29,15 +29,15 @@ Pingzhu Liu, Chunming He, Zunnan Xu, Chao Hao, Bo Zhao, Xingyu Shao, Jun Zhou, Z
 
 ### 3. Stage I: Pseudo-Label Generation
 
-The model is trained in two stages. First, generate pseudo labels from the unlabeled training images using DESPL (Eqs. (1)-(10) and Appendix A.3 of the paper):
+The model is trained in two stages. First, generate pseudo labels from the unlabeled training images using the supplied dual-eigenvector generator:
 
 ```bash
 python GeneratePseudoLabels.py --data_path YOUR_TRAININGSETPATH/Imgs --save_path YOUR_TRAININGSETPATH/PseudoMask_Enhanced --device cuda --imgsz 476
 ```
 
-The complete DESPL strategy is implemented directly in `GeneratePseudoLabels.py`, following the supplied local script's DINOv2, affinity, eigendecomposition, and augmentation structure. The ICML defaults are a 34 x 34 patch grid, color weight and bandwidth of 0.1, 50 entropy bins, an uncertainty-band fraction of 0.1, and eight augmented views. It uses entropy selection, Otsu thresholding, auxiliary-eigenvector correction in the uncertain region, and the inverse-aligned mean of Eq. (10), without reading ground-truth masks.
+`GeneratePseudoLabels.py` contains the supplied DINOv2, affinity, eigendecomposition, and augmentation pipeline. Use `--imgsz 476`, which matches its fixed 34 x 34 patch grid. It selects the main eigenvector by histogram entropy, applies Otsu thresholding and auxiliary-eigenvector correction in the uncertain region, retains the largest connected component, and applies a border prior. Eight augmented views are inverse-aligned and combined with a final strict `>0.5` vote, without reading ground-truth masks.
 
-It saves original-resolution soft pseudo labels as grayscale PNGs. `--save-npy` also saves the unquantized soft mask; `--binary-mask` applies an additional hard threshold to the PNG. Existing PNGs are skipped unless `--overwrite` is given. Pretrained weights are downloaded on first use; `--weights PATH` loads a local backbone state dict. See `python GeneratePseudoLabels.py --help` for options.
+It saves original-resolution binary masks as 0/255 PNGs and skips existing outputs. Official pretrained DINOv2 weights are downloaded on first use. The command above sets the output directory expected by Stage II; the script's default output directory is `./PseudoMask_s1`. See `python GeneratePseudoLabels.py --help` for options.
 
 ### 4. Stage II: Model Training
 
